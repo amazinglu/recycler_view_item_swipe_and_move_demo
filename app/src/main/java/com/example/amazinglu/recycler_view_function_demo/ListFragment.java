@@ -109,38 +109,6 @@ public class ListFragment extends Fragment {
             super(dragDirs, swipeDirs);
         }
 
-//        @Override
-//        public int convertToAbsoluteDirection(int flags, int layoutDirection) {
-//            if (swipeBack) {
-//                swipeBack = false;
-//                return 0;
-//            }
-//            return super.convertToAbsoluteDirection(flags, layoutDirection);
-//        }
-//
-//        @Override
-//        public void onChildDraw(Canvas c, RecyclerView recyclerView,
-//                                RecyclerView.ViewHolder viewHolder, float dX, float dY,
-//                                int actionState, boolean isCurrentlyActive) {
-//
-//            if (actionState == ACTION_STATE_SWIPE) {
-//                setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//            }
-//            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//        }
-//
-//        private void setTouchListener(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-//                                      float dX, float dY, int actionState, boolean isCurrentlyActive) {
-//            recyclerView.setOnTouchListener(new View.OnTouchListener() {
-//                @Override
-//                public boolean onTouch(View view, MotionEvent motionEvent) {
-//                    swipeBack = motionEvent.getAction() == MotionEvent.ACTION_CANCEL
-//                            || motionEvent.getAction() == MotionEvent.ACTION_UP;
-//                    return false;
-//                }
-//            });
-//        }
-
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                               RecyclerView.ViewHolder target) {
