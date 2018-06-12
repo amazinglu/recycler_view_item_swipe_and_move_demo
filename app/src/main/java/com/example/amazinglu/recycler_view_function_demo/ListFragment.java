@@ -2,6 +2,9 @@ package com.example.amazinglu.recycler_view_function_demo;
 
 import android.content.ClipData;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,18 +16,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.amazinglu.recycler_view_function_demo.model.Element;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_SWIPE;
-import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
 
 public class ListFragment extends Fragment {
 
@@ -62,16 +60,33 @@ public class ListFragment extends Fragment {
         loadData();
         recyclerView = (RecyclerView) view.findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+//        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         adapter = new Adapter(data);
         recyclerView.setAdapter(adapter);
 
         setUpItemTouchHelper();
+
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
     }
 
     private void setUpItemTouchHelper() {
-        swipeController = new SwipeController(ItemTouchHelper.UP|ItemTouchHelper.DOWN,
-                ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT);
+        swipeController = new SwipeController(this, new SwipeControllerActions() {
+            @Override
+            public void onLeftClicked(int position) {
+                // TODO: edit the item
+            }
+
+            @Override
+            public void onRightClicked(int position) {
+               Toast.makeText(getContext(), "item " + position + " edit button clicked",
+                       Toast.LENGTH_LONG).show();
+            }
+        });
         itemTouchHelper = new ItemTouchHelper(swipeController);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
@@ -85,99 +100,16 @@ public class ListFragment extends Fragment {
         }
     }
 
-    class SwipeController extends ItemTouchHelper.SimpleCallback {
+    public void swapItem(int i, int j) {
+        Collections.swap(data, i - 1, j - 1);
+    }
 
-        private boolean swipeBack = false;
+    public void deleteItem(int position) {
+        data.remove(position - 1);
+        adapter.notifyItemRemoved(position);
+    }
 
-        /**
-         * Creates a Callback for the given drag and swipe allowance. These values serve as
-         * defaults
-         * and if you want to customize behavior per ViewHolder, you can override
-         * {@link #getSwipeDirs(RecyclerView, ViewHolder)}
-         * and / or {@link #getDragDirs(RecyclerView, ViewHolder)}.
-         *
-         * @param dragDirs  Binary OR of direction flags in which the Views can be dragged. Must be
-         *                  composed of {@link #LEFT}, {@link #RIGHT}, {@link #START}, {@link
-         *                  #END},
-         *                  {@link #UP} and {@link #DOWN}.
-         * @param swipeDirs Binary OR of direction flags in which the Views can be swiped. Must be
-         *                  composed of {@link #LEFT}, {@link #RIGHT}, {@link #START}, {@link
-         *                  #END},
-         *                  {@link #UP} and {@link #DOWN}.
-         */
-        public SwipeController(int dragDirs, int swipeDirs) {
-            super(dragDirs, swipeDirs);
-        }
-
-//        @Override
-//        public int convertToAbsoluteDirection(int flags, int layoutDirection) {
-//            if (swipeBack) {
-//                swipeBack = false;
-//                return 0;
-//            }
-//            return super.convertToAbsoluteDirection(flags, layoutDirection);
-//        }
-//
-//        @Override
-//        public void onChildDraw(Canvas c, RecyclerView recyclerView,
-//                                RecyclerView.ViewHolder viewHolder, float dX, float dY,
-//                                int actionState, boolean isCurrentlyActive) {
-//
-//            if (actionState == ACTION_STATE_SWIPE) {
-//                setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//            }
-//            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//        }
-//
-//        private void setTouchListener(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-//                                      float dX, float dY, int actionState, boolean isCurrentlyActive) {
-//            recyclerView.setOnTouchListener(new View.OnTouchListener() {
-//                @Override
-//                public boolean onTouch(View view, MotionEvent motionEvent) {
-//                    swipeBack = motionEvent.getAction() == MotionEvent.ACTION_CANCEL
-//                            || motionEvent.getAction() == MotionEvent.ACTION_UP;
-//                    return false;
-//                }
-//            });
-//        }
-
-        @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                              RecyclerView.ViewHolder target) {
-            /**
-             * the action when the item move
-             * */
-
-            int fromPosition = viewHolder.getAdapterPosition(); // 拖动的item的position
-            int toPosition = target.getAdapterPosition(); // 目标item的position
-
-            if (toPosition < fromPosition) {
-                for (int i = fromPosition; i > toPosition; --i) {
-                    Collections.swap(data, i, i - 1);
-                }
-            } else {
-                for (int i = fromPosition; i < toPosition; ++i) {
-                    Collections.swap(data, i, i + 1);
-                }
-            }
-
-            adapter.notifyItemMoved(fromPosition, toPosition);
-            return true;
-        }
-
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            /**
-             * the action when the item swipe
-             * */
-            if (direction == ItemTouchHelper.RIGHT) {
-                // move right to delete item
-                int position = viewHolder.getAdapterPosition();
-                data.remove(position);
-                adapter.notifyItemRemoved(position);
-            } else {
-
-            }
-        }
+    public Adapter getAdapter() {
+        return adapter;
     }
 }

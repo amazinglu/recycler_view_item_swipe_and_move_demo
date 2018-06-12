@@ -12,8 +12,9 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: recycler view 侧滑菜单， 侧滑删除（左面和右面） (可以根据view type自定义菜单)
         //TODO: recycler view 拖曳变化位置
+        // swipe controller
         //TODO: recycler view header and footer view
-        //TODO: recycler view 拖曳变化位置
+        // use view type
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
